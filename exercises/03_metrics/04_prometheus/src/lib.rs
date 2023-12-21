@@ -52,6 +52,8 @@ pub fn do_something(i: u64) {
 
 #[cfg(test)]
 mod tests {
+    use metrics_exporter_prometheus::PrometheusBuilder;
+
     use crate::do_something;
     use std::net::{Ipv4Addr, SocketAddr};
 
@@ -59,7 +61,10 @@ mod tests {
     ///
     /// Initialize a pull-based Prometheus recorder, listening on the address specified as input.
     fn init_test_recorder(socket_addr: SocketAddr) {
-        todo!()
+        PrometheusBuilder::new()
+            .with_http_listener(socket_addr)
+            .install()
+            .expect("failed to install recorder");
     }
 
     #[test]

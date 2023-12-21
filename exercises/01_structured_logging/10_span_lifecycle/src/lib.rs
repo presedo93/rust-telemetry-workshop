@@ -63,7 +63,10 @@ pub use subscriber::init_test_subscriber;
 /// Manipulate the span we create in this function to match the output in the test below.
 pub fn do_something() {
     let span = tracing::info_span!("My unit of work");
-    todo!()
+
+    for _ in 0..3 {
+        let _g = span.enter();
+    }
 }
 
 #[cfg(test)]

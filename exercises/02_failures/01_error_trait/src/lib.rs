@@ -75,7 +75,10 @@ fn telemetry_wrapper() -> Result<(), OpaqueError> {
     let outcome = fallible_operation();
     if let Err(e) = &outcome {
         // Check out the methods in the `tracing::field` module!
-        todo!()
+        let span = tracing::Span::current();
+        span.record("error.msg", tracing::field::display(e));
+        span.record("error.debug", tracing::field::debug(e));
+        span.record("error.source_chain", source_chain(e));
     }
     outcome
 }

@@ -66,7 +66,28 @@ pub use logger::TestLogger;
 ///
 /// Refer to the test files for the expected output format.
 pub fn get_total(order_numbers: &[u64]) -> Result<u64, anyhow::Error> {
-    todo!()
+    log::trace!("START - process total price");
+    let start = std::time::Instant::now();
+
+    let mut total = 0u64;
+    for &order_number in order_numbers {
+        total += match get_order_details(order_number) {
+            Ok(order) => order.price,
+            Err(e) => {
+                log::trace!(
+                    "END - process total price - ERROR - {:?}ms",
+                    start.elapsed().as_millis()
+                );
+                return Err(e);
+            }
+        };
+    }
+
+    log::trace!(
+        "END - process total price - SUCCESS - {:?}ms",
+        start.elapsed().as_millis()
+    );
+    Ok(total)
 }
 
 pub struct OrderDetails {
@@ -76,10 +97,23 @@ pub struct OrderDetails {
 
 /// A dummy function to simulate what would normally be a database query.
 fn get_order_details(order_number: u64) -> Result<OrderDetails, anyhow::Error> {
+    log::trace!("START - retrieve order");
+    let start = std::time::Instant::now();
+
     if order_number % 4 == 0 {
+        log::trace!(
+            "END - retrieve order - ERROR - {:?}ms",
+            start.elapsed().as_millis()
+        );
         Err(anyhow::anyhow!("Failed to talk to the database"))
     } else {
         let prices = vec![999, 1089, 1029];
+
+        log::trace!(
+            "END - retrieve order - SUCCESS - {:?}ms",
+            start.elapsed().as_millis()
+        );
+
         Ok(OrderDetails {
             order_number,
             price: prices[order_number as usize % prices.len()],
